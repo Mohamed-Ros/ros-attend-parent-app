@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Ros Parent Portal</string>
+    <string name="title_activity_main">Ros Parent Portal</string>
+    <string name="package_name">net.ros.attendance.parent</string>
+    <string name="custom_url_scheme">net.ros.attendance.parent</string>
+</resources>

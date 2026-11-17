@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Feature Graphic 1024x500</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800;900;1000&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 1024px;
+      height: 500px;
+      overflow: hidden;
+      font-family: 'Cairo', sans-serif;
+      background: #16423C;
+    }
+    .banner {
+      width: 1024px;
+      height: 500px;
+      background: linear-gradient(135deg, #16423C 0%, #0D2824 100%);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 70px;
+      overflow: hidden;
+    }
+    /* Background Glow Orbs */
+    .glow-1 {
+      position: absolute;
+      top: -120px;
+      right: -120px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .glow-2 {
+      position: absolute;
+      bottom: -150px;
+      left: -100px;
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, rgba(52, 211, 153, 0.2) 0%, rgba(52, 211, 153, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    /* Left Text Content */
+    .text-box {
+      position: relative;
+      z-index: 10;
+      max-width: 540px;
+      text-align: right;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1.5px solid rgba(52, 211, 153, 0.4);
+      color: #6EE7B7;
+      padding: 6px 18px;
+      border-radius: 99px;
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+    .title {
+      font-size: 42px;
+      font-weight: 1000;
+      color: #FFFFFF;
+      line-height: 1.25;
+      margin-bottom: 12px;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    .subtitle {
+      font-size: 20px;
+      font-weight: 800;
+      color: #A7F3D0;
+      line-height: 1.6;
+    }
+    /* Right Logo Card */
+    .logo-card {
+      position: relative;
+      z-index: 10;
+      width: 320px;
+      height: 320px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 40px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+    }
+    .logo-card img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+
+    <!-- Text Side -->
+    <div class="text-box">
+      <div class="badge">تطبيق أولياء الأمور الرسمية</div>
+      <div class="title">ROS Parent Portal</div>
+      <div class="subtitle">متابعة الحضور والغياب • نتائج الامتحانات • السجل المالي والمصروفات</div>
+    </div>
+
+    <!-- Logo Side -->
+    <div class="logo-card">
+      <img src="logo.png" alt="ROS Logo">
+    </div>
+  </div>
+</body>
+</html>

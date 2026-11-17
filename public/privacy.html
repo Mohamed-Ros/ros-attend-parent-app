@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سياسة الخصوصية - تطبيق أولياء الأمور ROS Parent Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+  <!-- Header / Navigation Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="/logo.png" alt="ROS Logo" class="h-10 w-auto object-contain" onerror="this.style.display='none'">
+        <div>
+          <h1 class="text-base font-black text-slate-900 leading-tight">ROS Parent Portal</h1>
+          <p class="text-xs font-semibold text-emerald-700">تطبيق أولياء الأمور لمتابعة الطلاب</p>
+        </div>
+      </div>
+      <a href="/" class="text-xs font-bold bg-emerald-50 text-emerald-800 hover:bg-emerald-100 px-3.5 py-2 rounded-xl border border-emerald-200/60 transition-all flex items-center gap-1.5">
+        <i class="fa-solid fa-house text-emerald-600"></i>
+        <span>الرئيسية</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 py-8 flex-1 w-full">
+    
+    <!-- Hero Title Card -->
+    <div class="bg-gradient-to-br from-[#16423C] to-[#0D2824] rounded-3xl p-6 sm:p-8 text-white shadow-xl mb-8 relative overflow-hidden">
+      <div class="absolute -left-10 -bottom-10 w-48 h-48 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none"></div>
+      <div class="relative z-10 space-y-2">
+        <div class="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full border border-emerald-400/30 mb-2">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>حماية البيانات والخصوصية</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black tracking-tight">سياسة الخصوصية والشروط</h2>
+        <p class="text-emerald-100/80 text-xs sm:text-sm font-medium">آخر تحديث: أغسطس 2026</p>
+      </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="space-y-6">
+
+      <!-- Section 1 -->
+      <section class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-circle-info"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">1. المقدمة ونطاق التطبيق</h3>
+        </div>
+        <p class="text-sm font-semibold leading-relaxed text-slate-600">
+          مرحباً بكم في تطبيق **ROS Parent Portal** (تطبيق أولياء الأمور). نحن ندرك أهمية بياناتكم وخصوصية معلومات أبنائكم الطلاب، ونلتزم بأعلى معايير الأمان وحماية البيانات والشفافية عند تقديم خدماتنا للمؤسسات التعليمية وأولياء الأمور.
+        </p>
+      </section>
+
+      <!-- Section 2 -->
+      <section class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-database"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">2. البيانات التي يتم جمعها</h3>
+        </div>
+        <p class="text-sm font-semibold leading-relaxed text-slate-600 mb-4">
+          يجمع التطبيق البيانات الضرورية فقط لتقديم خدمة متابعة السجل الأكاديمي والمالي وتنبيهات الحضور، وتشمل:
+        </p>
+        <ul class="space-y-2.5 text-xs sm:text-sm font-semibold text-slate-700">
+          <li class="flex items-start gap-2.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <i class="fa-solid fa-circle-check text-emerald-600 mt-1"></i>
+            <span><strong>معلومات المتابعة الحسابية:</strong> رقم الهاتف أو كود الطالب المُسجل لدى المؤسسة التعليمية للتحقق من هوية ولي الأمر.</span>
+          </li>
+          <li class="flex items-start gap-2.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <i class="fa-solid fa-circle-check text-emerald-600 mt-1"></i>
+            <span><strong>سجلات الطلاب التعليمية:</strong> سجلات الحضور والغياب والتأخير، نتائج الامتحانات والاختبارات، والرسوم الدراسية والمستحقات.</span>
+          </li>
+          <li class="flex items-start gap-2.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <i class="fa-solid fa-circle-check text-emerald-600 mt-1"></i>
+            <span><strong>بيانات الإشعارات (Push Notifications):</strong> توكن جهاز الهاتف (Push Token) لإرسال التنبيهات الفورية بخصوص حضور الطالب أو نزول نتائج جديدة.</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Section 3 -->
+      <section class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-gears"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">3. كيف نستخدم البيانات</h3>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-3 text-xs sm:text-sm font-semibold">
+          <div class="bg-emerald-50/50 border border-emerald-100 p-4 rounded-xl space-y-1">
+            <h4 class="text-emerald-900 font-bold flex items-center gap-2">
+              <i class="fa-solid fa-chart-line text-emerald-600"></i> عرض السجل الأكاديمي
+            </h4>
+            <p class="text-slate-600 text-xs">تمكين ولي الأمر من متابعة مستوى أبنائه وتفاصيل الحضور والغياب أولاً بأول.</p>
+          </div>
+          <div class="bg-emerald-50/50 border border-emerald-100 p-4 rounded-xl space-y-1">
+            <h4 class="text-emerald-900 font-bold flex items-center gap-2">
+              <i class="fa-solid fa-bell text-emerald-600"></i> التنبيهات الفورية
+            </h4>
+            <p class="text-slate-600 text-xs">إرسال إشعارات هامة عند تسجيل الحضور والغياب أو صدور درجات امتحانات جديدة.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4 -->
+      <section class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">4. أمان البيانات والمشاركة</h3>
+        </div>
+        <p class="text-sm font-semibold leading-relaxed text-slate-600 mb-3">
+          • <strong>تشفير الاتصال:</strong> يتم نقل جميع البيانات عبر اتصالات مشفرة ببروتوكولات (HTTPS / TLS) لضمان عدم اعتراض البيانات.
+        </p>
+        <p class="text-sm font-semibold leading-relaxed text-slate-600 mb-3">
+          • <strong>عدم المشاركة التجارية:</strong> نحن **لا نبيع ولا نؤجر ولا نتاجر** ببيانات أي مستخدم أو طالب، ولا يتم مشاركتها مطلقاً مع أي جهات إعلانية أو خارجية.
+        </p>
+        <p class="text-sm font-semibold leading-relaxed text-slate-600">
+          • <strong>إعلانات الطرف الثالث:</strong> التطبيق خالٍ تماماً من الإعلانات التجاريّة.
+        </p>
+      </section>
+
+      <!-- Section 5 -->
+      <section class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-user-minus"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">5. حذف البيانات والحسابات</h3>
+        </div>
+        <p class="text-sm font-semibold leading-relaxed text-slate-600 mb-3">
+          يحق لولي الأمر في أي وقت تسجيل الخروج وإزالة تفاصيل الجلسة المحفوظة محلياً. كما يحق لولي الأمر طلب حذف بيانات حسابه أو بيانات الطالب المسجلة بالتواصل المباشر مع إدارة المدرسة/السنتر التعليمي، أو عبر التواصل مع الدعم الفني.
+        </p>
+      </section>
+
+      <!-- Section 6 -->
+      <section class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-headset"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">6. التواصل معنا للدعم والخصوصية</h3>
+        </div>
+        <p class="text-sm font-semibold leading-relaxed text-slate-600">
+          لأي استفسارات بخصوص سياسة الخصوصية وحماية البيانات، أو تقديم طلبات حذف البيانات، يرجى التواصل مع الفريق الفني:
+        </p>
+        <div class="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl inline-block text-xs sm:text-sm font-bold text-slate-800 space-y-1">
+          <p><i class="fa-solid fa-envelope text-emerald-600 me-2"></i> البريد الإلكتروني: <a href="mailto:support@ros-attends.net" class="text-emerald-700 underline">support@ros-attends.net</a></p>
+          <p><i class="fa-solid fa-globe text-emerald-600 me-2"></i> تطبيق أولياء الأمور: ROS Parent Portal</p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs font-semibold text-slate-500">
+    <p>جميع الحقوق محفوظة © ROS Parent Portal 2026</p>
+  </footer>
+
+</body>
+</html>

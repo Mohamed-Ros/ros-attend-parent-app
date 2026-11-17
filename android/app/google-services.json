@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1065677522760",
+    "project_id": "ros-attends-parent",
+    "storage_bucket": "ros-attends-parent.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1065677522760:android:eeee99d085eb4eb8ad957d",
+        "android_client_info": {
+          "package_name": "net.ros.attendance.parent"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsUWDg7r_6EjZiF_q1lLO7FU60VedEqMk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
