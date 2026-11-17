@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
+import { KeyRound, Lock, LockKeyhole } from 'lucide-react';
 import { AuthService } from '../services/authService';
+import { HeroFrame } from '../components/ScreenHero';
+import { Button, Card, Field, InlineAlert } from '../components/ui';
 
 interface ChangePasswordProps {
   /** First login: the parent cannot skip this screen. */
@@ -38,77 +41,52 @@ export const ChangePassword: React.FC<ChangePasswordProps> = ({ forced = false, 
     }
   };
 
-  const field = (id: string, label: string, value: string, set: (v: string) => void, autoComplete: string) => (
-    <div className="space-y-1.5">
-      <label htmlFor={id} className="text-xs font-bold text-slate-700 block text-right">
-        {label}
-      </label>
-      <input
-        id={id}
-        type={show ? 'text' : 'password'}
-        autoComplete={autoComplete}
-        value={value}
-        onChange={(e) => set(e.target.value)}
-        className="w-full bg-slate-50 border border-slate-300 rounded-2xl px-4 py-3 text-sm font-bold text-slate-900 outline-none focus:border-emerald-600 transition-all text-right dir-ltr"
-      />
-    </div>
-  );
+  const type = show ? 'text' : 'password';
 
   return (
-    <div className={`${forced ? 'min-h-screen bg-white p-6 flex items-center justify-center' : ''} font-['Cairo']`}>
-      <form onSubmit={submit} className="w-full max-w-sm mx-auto bg-white border border-slate-200 rounded-3xl p-5 space-y-4 shadow-lg shadow-slate-100">
-        <div className="text-center space-y-1">
-          <div className="w-12 h-12 mx-auto rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
-            <i className="fa-solid fa-key text-lg" />
-          </div>
-          <h2 className="text-lg font-black text-slate-900">{forced ? 'اختر كلمة سر جديدة' : 'تغيير كلمة السر'}</h2>
-          {forced && (
-            <p className="text-[11px] font-semibold text-slate-500 leading-relaxed">
-              هذه أول مرة تدخل فيها. لحماية بيانات ابنك، اختر كلمة سر خاصة بك لن يعرفها غيرك.
-            </p>
-          )}
+    <div className="min-h-screen bg-canvas text-ink font-sans">
+      <HeroFrame watermark={KeyRound} padBottom="pb-14">
+        <div className="space-y-1 pt-2">
+          <h1 className="text-display">{forced ? 'اختر كلمة سر جديدة' : 'تغيير كلمة السر'}</h1>
+          <p className="text-meta text-white/80 max-w-[75%]">
+            {forced ? 'هذه أول مرة تدخل فيها. لحماية بيانات ابنك، اختر كلمة سر خاصة بك.' : 'اختر كلمة سر جديدة لحسابك'}
+          </p>
         </div>
+      </HeroFrame>
 
-        {!(forced && initialPassword) && field('current', 'كلمة السر الحالية', current, setCurrent, 'current-password')}
-        {field('next', 'كلمة السر الجديدة (6 أحرف على الأقل)', next, setNext, 'new-password')}
-        {field('confirm', 'تأكيد كلمة السر الجديدة', confirm, setConfirm, 'new-password')}
+      <main className="relative z-10 w-full max-w-md mx-auto px-4 -mt-6 pb-10">
+        <Card className="p-5">
+          <form onSubmit={submit} className="space-y-4">
+            {!(forced && initialPassword) && (
+              <Field id="current" icon={Lock} label="كلمة السر الحالية" type={type} autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} ltr />
+            )}
+            <Field id="next" icon={KeyRound} label="كلمة السر الجديدة" hint="6 أحرف على الأقل" type={type} autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} ltr />
+            <Field id="confirm" icon={LockKeyhole} label="تأكيد كلمة السر الجديدة" type={type} autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} ltr />
 
-        <label className="flex items-center gap-2 text-xs font-bold text-slate-600 cursor-pointer select-none">
-          <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} className="w-4 h-4 accent-emerald-700" />
-          إظهار كلمات السر
-        </label>
+            <label className="flex items-center gap-2 text-meta text-ink-2 cursor-pointer select-none">
+              <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} className="w-4 h-4 accent-brand" />
+              إظهار كلمات السر
+            </label>
 
-        {error && (
-          <div role="alert" className="bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-2xl px-3 py-2.5 text-right">
-            {error}
-          </div>
-        )}
+            {error && <InlineAlert>{error}</InlineAlert>}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-3.5 rounded-2xl bg-[#16423C] text-white font-black text-sm flex items-center justify-center gap-2 hover:bg-[#123631] active:scale-95 transition-all shadow-md disabled:opacity-50"
-        >
-          {loading ? (
-            <>
-              <i className="fa-solid fa-circle-notch animate-spin" /> جاري الحفظ...
-            </>
-          ) : (
-            'حفظ وتسجيل الدخول'
-          )}
-        </button>
+            <Button type="submit" loading={loading}>
+              {loading ? 'جارٍ الحفظ' : forced ? 'حفظ ومتابعة' : 'حفظ'}
+            </Button>
 
-        {!forced && onCancel && (
-          <button type="button" onClick={onCancel} className="w-full py-2.5 text-xs font-bold text-slate-500 hover:text-slate-800">
-            إلغاء
-          </button>
-        )}
-        {forced && onLogout && (
-          <button type="button" onClick={onLogout} className="w-full py-2.5 text-xs font-bold text-slate-400 hover:text-slate-700">
-            الرجوع لتسجيل الدخول
-          </button>
-        )}
-      </form>
+            {!forced && onCancel && (
+              <Button type="button" variant="ghost" onClick={onCancel}>
+                إلغاء
+              </Button>
+            )}
+            {forced && onLogout && (
+              <Button type="button" variant="ghost" onClick={onLogout}>
+                الرجوع لتسجيل الدخول
+              </Button>
+            )}
+          </form>
+        </Card>
+      </main>
     </div>
   );
 };

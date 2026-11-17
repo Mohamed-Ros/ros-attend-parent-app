@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Swal from 'sweetalert2';
+import { ArrowLeft, ArrowRight, Check, Clock, Send, X } from 'lucide-react';
+import { Dialog } from '../../lib/dialog';
+import { Spinner } from '../ui';
 import { ApiClient } from '../../services/apiClient';
 import { Attempt, AttemptQuestion } from './types';
 
@@ -48,7 +50,7 @@ export const ExamTaking: React.FC<Props> = ({ studentId, paperId, onClose: onClo
         setAttempt(a);
       })
       .catch((e: any) => {
-        Swal.fire({ icon: 'info', title: 'مش متاح', text: e?.message, confirmButtonColor: '#065F46' });
+        Dialog.fire({ title: 'غير متاح', text: e?.message });
         onClose(e?.data?.state === 'submitted');
       });
   }, [base, onClose]);
@@ -76,7 +78,7 @@ export const ExamTaking: React.FC<Props> = ({ studentId, paperId, onClose: onClo
       ids.forEach(id => pending.current.add(id));
       if (e?.status === 409) {
         finished.current = true;
-        Swal.fire({ icon: 'info', title: 'الوقت خلص', text: e?.message || 'اتسلّم الامتحان تلقائياً.', confirmButtonColor: '#065F46' }).then(() => onClose(true));
+        Dialog.fire({ icon: 'info', title: 'الوقت خلص', text: e?.message || 'اتسلّم الامتحان تلقائياً.' }).then(() => onClose(true));
       } else {
         setSaveState('offline');
       }
@@ -109,14 +111,14 @@ export const ExamTaking: React.FC<Props> = ({ studentId, paperId, onClose: onClo
     try {
       const res = await ApiClient.post<{ message: string }>(`${base}/submit`, { answers: payloadFor(attempt.questions.map(q => q.id), answersRef.current) });
       finished.current = true;
-      await Swal.fire({ icon: 'success', title: auto ? 'الوقت خلص واتسلّم الامتحان' : 'تم التسليم ✅', text: res.message, confirmButtonColor: '#065F46' });
+      await Dialog.fire({ icon: 'success', title: auto ? 'الوقت خلص واتسلّم الامتحان' : 'تم التسليم', text: res.message });
       onClose(true);
     } catch (e: any) {
       if (e?.status === 409) {
         finished.current = true;
         onClose(true);
       } else {
-        Swal.fire({ icon: 'error', title: 'تعذر التسليم', text: 'اتأكد من الإنترنت وحاول تاني — إجاباتك محفوظة.', confirmButtonColor: '#065F46' });
+        Dialog.fire({ icon: 'error', title: 'تعذر التسليم', text: 'اتأكد من الإنترنت وحاول تاني — إجاباتك محفوظة.' });
       }
     } finally {
       setSubmitting(false);
@@ -136,32 +138,31 @@ export const ExamTaking: React.FC<Props> = ({ studentId, paperId, onClose: onClo
   const confirmSubmit = async () => {
     if (!attempt) return;
     const left = attempt.questions.length - answeredCount;
-    const res = await Swal.fire({
+    const res = await Dialog.fire({
       icon: left > 0 ? 'warning' : 'question',
       title: 'تسليم الامتحان؟',
       text: left > 0 ? `فيه ${left} سؤال لسه مجاوبتش عليهم. بعد التسليم مش هتقدر تعدّل.` : 'بعد التسليم مش هتقدر تعدّل إجاباتك.',
       showCancelButton: true,
       confirmButtonText: 'سلّم',
       cancelButtonText: 'رجوع',
-      confirmButtonColor: '#065F46',
     });
     if (res.isConfirmed) submit(false);
   };
 
   const leave = async () => {
     await flush(answersRef.current);
-    const res = await Swal.fire({
+    const res = await Dialog.fire({
       icon: 'question', title: 'الخروج من الامتحان؟',
       text: deadline ? 'إجاباتك محفوظة، والوقت هيفضل شغال. لو الوقت خلص الامتحان هيتسلّم تلقائياً.' : 'إجاباتك محفوظة وتقدر تكمّل بعدين.',
-      showCancelButton: true, confirmButtonText: 'خروج', cancelButtonText: 'كمّل الحل', confirmButtonColor: '#64748b',
+      showCancelButton: true, confirmButtonText: 'خروج', cancelButtonText: 'كمّل الحل',
     });
     if (res.isConfirmed) onClose(false);
   };
 
   if (!attempt) {
     return (
-      <div className="fixed inset-0 z-[70] bg-white flex items-center justify-center font-['Cairo']">
-        <i className="fa-solid fa-circle-notch animate-spin text-3xl text-emerald-700" />
+      <div className="fixed inset-0 z-[70] bg-canvas grid place-items-center">
+        <Spinner className="!w-8 !h-8" />
       </div>
     );
   }
@@ -171,37 +172,37 @@ export const ExamTaking: React.FC<Props> = ({ studentId, paperId, onClose: onClo
   const urgent = msLeft !== null && msLeft < 60_000;
 
   return (
-    <div className="fixed inset-0 z-[70] bg-slate-50 flex flex-col font-['Cairo'] text-slate-900" dir="rtl">
+    <div className="fixed inset-0 z-[70] bg-canvas flex flex-col font-sans text-ink" dir="rtl">
       {/* Header */}
-      <header className="bg-white border-b border-slate-100 px-4 py-3 flex items-center gap-3">
-        <button onClick={leave} className="w-10 h-10 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center" aria-label="خروج">
-          <i className="fa-solid fa-xmark" />
+      <header className="bg-surface border-b border-line px-4 py-3 flex items-center gap-3">
+        <button onClick={leave} className="w-10 h-10 rounded-full border border-line grid place-items-center text-ink" aria-label="خروج">
+          <X size={18} />
         </button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-sm font-black truncate">{attempt.paper.title}</h1>
-          <p className="text-[11px] font-bold text-slate-500">
+          <h1 className="text-body font-semibold truncate">{attempt.paper.title}</h1>
+          <p className="text-caption text-ink-2">
             جاوبت {answeredCount} من {attempt.questions.length}
-            <span className={`mr-2 ${saveState === 'offline' ? 'text-rose-600' : 'text-slate-400'}`}>
+            <span className={`mr-2 ${saveState === 'offline' ? 'text-danger' : 'text-ink-3'}`}>
               {saveState === 'saving' ? '· بيحفظ…' : saveState === 'offline' ? '· مش متصل — هيتحفظ لما النت يرجع' : '· اتحفظ'}
             </span>
           </p>
         </div>
         {msLeft !== null && (
-          <div className={`px-3 py-1.5 rounded-xl text-sm font-black tabular-nums flex items-center gap-1.5 ${urgent ? 'bg-rose-100 text-rose-700 animate-pulse' : 'bg-emerald-50 text-emerald-800'}`} dir="ltr">
-            <i className="fa-regular fa-clock text-xs" />{formatLeft(msLeft)}
+          <div className={`h-8 px-3 rounded-full text-meta font-bold tabular flex items-center gap-1.5 ${urgent ? 'bg-danger-soft text-danger' : 'bg-brand-soft text-brand-ink'}`} dir="ltr">
+            <Clock size={14} />{formatLeft(msLeft)}
           </div>
         )}
       </header>
 
       {/* Question navigator */}
-      <div className="bg-white border-b border-slate-100 px-4 py-2 flex gap-1.5 overflow-x-auto">
+      <div className="bg-surface border-b border-line px-4 py-2 flex gap-1.5 overflow-x-auto">
         {attempt.questions.map((qq, i) => {
           const aa = answers[qq.id];
           const done = qq.type === 'essay' ? !!aa?.text_answer?.trim() : aa?.selected_option !== null && aa?.selected_option !== undefined;
           return (
             <button key={qq.id} onClick={() => setCurrent(i)}
-              className={`w-9 h-9 rounded-xl text-xs font-black shrink-0 border ${
-                i === current ? 'bg-[#065F46] text-white border-[#065F46]' : done ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-white text-slate-500 border-slate-200'
+              className={`w-9 h-9 rounded-full text-caption font-semibold shrink-0 border tabular ${
+                i === current ? 'bg-ink text-white border-ink' : done ? 'bg-brand-soft text-brand-ink border-transparent' : 'bg-surface text-ink-2 border-line-strong'
               }`}>{i + 1}</button>
           );
         })}
@@ -210,11 +211,11 @@ export const ExamTaking: React.FC<Props> = ({ studentId, paperId, onClose: onClo
       {/* Question */}
       <main className="flex-1 overflow-y-auto p-4">
         <div className="max-w-md mx-auto space-y-4">
-          <div className="flex items-center justify-between text-xs font-black text-slate-500">
+          <div className="flex items-center justify-between text-meta text-ink-2">
             <span>سؤال {current + 1} من {attempt.questions.length}</span>
             <span>{q.points} {q.points === 1 ? 'درجة' : 'درجات'}</span>
           </div>
-          <p className="text-lg font-black leading-relaxed whitespace-pre-wrap">{q.text}</p>
+          <p className="text-title leading-relaxed whitespace-pre-wrap">{q.text}</p>
 
           {q.type !== 'essay' ? (
             <div className="space-y-2.5">
@@ -222,13 +223,13 @@ export const ExamTaking: React.FC<Props> = ({ studentId, paperId, onClose: onClo
                 const chosen = a.selected_option === opt.index;
                 return (
                   <button key={opt.index} onClick={() => update(q, { selected_option: chosen ? null : opt.index })}
-                    className={`w-full text-right p-4 rounded-2xl border-2 flex items-center gap-3 transition-colors active:scale-[0.99] ${
-                      chosen ? 'border-[#065F46] bg-emerald-50' : 'border-slate-200 bg-white'
+                    className={`w-full text-right p-4 rounded-card border flex items-center gap-3 transition-colors ${
+                      chosen ? 'border-brand bg-brand-soft' : 'border-line-strong bg-surface'
                     }`}>
-                    <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${chosen ? 'border-[#065F46] bg-[#065F46] text-white' : 'border-slate-300'}`}>
-                      {chosen && <i className="fa-solid fa-check text-[10px]" />}
+                    <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${chosen ? 'border-brand bg-brand text-white' : 'border-line-strong'}`}>
+                      {chosen && <Check size={12} strokeWidth={3} />}
                     </span>
-                    <span className="text-sm font-bold">{opt.text}</span>
+                    <span className="text-body font-medium">{opt.text}</span>
                   </button>
                 );
               })}
@@ -239,26 +240,26 @@ export const ExamTaking: React.FC<Props> = ({ studentId, paperId, onClose: onClo
               onChange={e => update(q, { text_answer: e.target.value })}
               rows={8}
               placeholder="اكتب إجابتك هنا…"
-              className="w-full rounded-2xl border-2 border-slate-200 focus:border-[#065F46] bg-white p-4 text-sm font-bold outline-none leading-relaxed"
+              className="w-full rounded-card border border-line-strong focus:border-brand focus:ring-2 focus:ring-brand/15 bg-surface p-4 text-body outline-none leading-relaxed"
             />
           )}
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-100 p-3 flex items-center gap-2" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
+      <footer className="bg-surface border-t border-line p-3 flex items-center gap-2" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
         <button onClick={() => setCurrent(c => Math.max(0, c - 1))} disabled={current === 0}
-          className="h-12 px-4 rounded-2xl bg-slate-100 text-slate-700 text-sm font-black disabled:opacity-40">
-          <i className="fa-solid fa-arrow-right ml-1" />السابق
+          className="btn btn-secondary px-4">
+          <ArrowRight size={18} />السابق
         </button>
         <div className="flex-1" />
         {current < attempt.questions.length - 1 ? (
-          <button onClick={() => setCurrent(c => c + 1)} className="h-12 px-5 rounded-2xl bg-[#065F46] text-white text-sm font-black">
-            التالي<i className="fa-solid fa-arrow-left mr-1" />
+          <button onClick={() => setCurrent(c => c + 1)} className="btn btn-primary">
+            التالي<ArrowLeft size={18} />
           </button>
         ) : (
-          <button onClick={confirmSubmit} disabled={submitting} className="h-12 px-5 rounded-2xl bg-[#065F46] text-white text-sm font-black disabled:opacity-50">
-            {submitting ? <i className="fa-solid fa-circle-notch animate-spin" /> : <><i className="fa-solid fa-paper-plane ml-1" />تسليم</>}
+          <button onClick={confirmSubmit} disabled={submitting} className="btn btn-primary">
+            {submitting ? <Spinner className="!text-white" /> : <><Send size={18} />تسليم</>}
           </button>
         )}
       </footer>

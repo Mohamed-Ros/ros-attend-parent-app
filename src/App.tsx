@@ -7,7 +7,9 @@ import { Billing } from './pages/Billing';
 import { Exams } from './pages/Exams';
 import { Profile } from './pages/Profile';
 import { Notifications } from './pages/Notifications';
-import { Header } from './components/Header';
+import { ScreenHero } from './components/ScreenHero';
+import { Bell, CalendarCheck, GraduationCap, RefreshCw, UserRound, Wallet, LucideIcon } from 'lucide-react';
+import { Spinner } from './components/ui';
 import { BottomNav, NavTab } from './components/BottomNav';
 import { Student } from './types';
 import { PushService, PUSH_EVENT } from './services/pushService';
@@ -18,6 +20,14 @@ import { NotificationService, ParentNotification } from './services/notification
 type Stage = 'loading' | 'login' | 'change-password' | 'app';
 
 const NOTIFICATION_POLL_MS = 90_000;
+
+const META: Record<Exclude<NavTab, 'dashboard'>, { title: string; subtitle: string; icon: LucideIcon }> = {
+  attendance: { title: 'سجل الحضور', subtitle: 'مواعيد الحضور وموقف الواجب', icon: CalendarCheck },
+  billing: { title: 'المالية', subtitle: 'الاشتراك والإيصالات', icon: Wallet },
+  exams: { title: 'الدرجات', subtitle: 'الأداء والمستوى العلمي', icon: GraduationCap },
+  profile: { title: 'حسابي', subtitle: 'بيانات الطالب وإعدادات الحساب', icon: UserRound },
+  notifications: { title: 'الإشعارات', subtitle: 'آخر التنبيهات والرسائل', icon: Bell },
+};
 
 export const App: React.FC = () => {
   const [stage, setStage] = useState<Stage>(ApiClient.getToken() ? 'loading' : 'login');
@@ -183,8 +193,8 @@ export const App: React.FC = () => {
 
   if (stage === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white" aria-busy="true">
-        <i className="fa-solid fa-circle-notch animate-spin text-2xl text-emerald-700" />
+      <div className="min-h-screen grid place-items-center bg-canvas" aria-busy="true">
+        <Spinner />
       </div>
     );
   }
@@ -198,56 +208,67 @@ export const App: React.FC = () => {
   if (!student) return <Login onLoggedIn={handleLoggedIn} />;
 
   if (voluntaryPasswordChange) {
-    return (
-      <div className="min-h-screen bg-slate-50 p-4 pt-10">
-        <ChangePassword onDone={handlePasswordChanged} onCancel={() => setVoluntaryPasswordChange(false)} />
-      </div>
-    );
+    return <ChangePassword onDone={handlePasswordChanged} onCancel={() => setVoluntaryPasswordChange(false)} />;
   }
 
   const unreadCount = NotificationService.unreadCount(notifications);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-['Cairo'] relative selection:bg-emerald-700 selection:text-white antialiased">
-      <div className="fixed -top-40 -left-40 w-96 h-96 bg-emerald-500/5 rounded-full blur-[140px] pointer-events-none" />
-      <div className="fixed -bottom-40 -right-40 w-96 h-96 bg-teal-500/5 rounded-full blur-[140px] pointer-events-none" />
+    <div className="min-h-screen bg-canvas text-ink font-sans">
+      {activeTab === 'dashboard' && (
+        <Dashboard
+          key={student.id}
+          student={student}
+          studentsList={studentsList}
+          hasUnread={unreadCount > 0}
+          onNavigateTab={setActiveTab}
+          onSwitchStudent={handleSwitchStudent}
+          onLogout={handleLogout}
+        />
+      )}
 
-      <Header
-        student={student}
-        studentsList={studentsList}
-        activeTab={activeTab}
-        onNavigateTab={setActiveTab}
-        onSwitchStudent={handleSwitchStudent}
-        onLogout={handleLogout}
-        unreadCount={activeTab === 'notifications' ? 0 : unreadCount}
-      />
+      {activeTab !== 'dashboard' && (
+        <ScreenHero
+          title={META[activeTab].title}
+          subtitle={META[activeTab].subtitle}
+          icon={META[activeTab].icon}
+          student={student}
+          studentsList={studentsList}
+          onSwitchStudent={handleSwitchStudent}
+          onLogout={handleLogout}
+          {...(activeTab === 'notifications'
+            ? {
+                onBack: () => setActiveTab('dashboard'),
+                action: (
+                  <button
+                    type="button"
+                    onClick={loadNotifications}
+                    aria-label="تحديث"
+                    className="w-11 h-11 shrink-0 rounded-2xl bg-white/15 grid place-items-center"
+                  >
+                    <RefreshCw size={20} className={notificationsLoading ? 'animate-spin' : ''} aria-hidden />
+                  </button>
+                ),
+              }
+            : { onOpenNotifications: () => setActiveTab('notifications'), hasUnread: unreadCount > 0 })}
+        />
+      )}
 
-      <main className="p-4 max-w-md mx-auto relative z-10">
-        {activeTab === 'dashboard' && <Dashboard student={student} onNavigateTab={setActiveTab} />}
-        {activeTab === 'attendance' && <Attendance student={student} onNavigateHome={() => setActiveTab('dashboard')} />}
-        {activeTab === 'billing' && <Billing student={student} onNavigateHome={() => setActiveTab('dashboard')} />}
-        {activeTab === 'exams' && <Exams student={student} onNavigateHome={() => setActiveTab('dashboard')} />}
-        {activeTab === 'notifications' && (
-          <Notifications
-            students={studentsList}
-            notifications={notifications}
-            loading={notificationsLoading}
-            seenBefore={seenBefore}
-            onRefresh={loadNotifications}
-            onNavigateHome={() => setActiveTab('dashboard')}
-          />
-        )}
-        {activeTab === 'profile' && (
-          <Profile
-            student={student}
-            onLogout={handleLogout}
-            onNavigateHome={() => setActiveTab('dashboard')}
-            onChangePassword={() => setVoluntaryPasswordChange(true)}
-          />
-        )}
-      </main>
+      {activeTab !== 'dashboard' && (
+        <main className="relative z-10 px-4 -mt-3 pb-32 max-w-md md:max-w-3xl lg:max-w-5xl mx-auto">
+          {activeTab === 'attendance' && <Attendance key={student.id} student={student} />}
+          {activeTab === 'billing' && <Billing key={student.id} student={student} />}
+          {activeTab === 'exams' && <Exams key={student.id} student={student} />}
+          {activeTab === 'notifications' && (
+            <Notifications students={studentsList} notifications={notifications} loading={notificationsLoading} seenBefore={seenBefore} />
+          )}
+          {activeTab === 'profile' && (
+            <Profile student={student} onLogout={handleLogout} onChangePassword={() => setVoluntaryPasswordChange(true)} />
+          )}
+        </main>
+      )}
 
-      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      <BottomNav activeTab={activeTab === 'notifications' ? 'dashboard' : activeTab} setActiveTab={setActiveTab} />
     </div>
   );
 };

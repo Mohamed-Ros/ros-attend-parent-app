@@ -4,6 +4,8 @@ import { Student } from '../types';
 export interface ParentNotification {
   id: number;
   student_id?: number | null;
+  /** The teacher who sent it. Broadcasts (no student_id) are only relevant to that teacher's children. */
+  tenant_id?: number | null;
   title: string;
   body: string;
   type: string;

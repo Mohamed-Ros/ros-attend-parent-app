@@ -4,6 +4,11 @@ export interface Student {
   phone?: string;
   parent_phone?: string;
   center_phone?: string;
+  /** The teacher (tenant) this child studies with. A parent's children can span several teachers. */
+  tenant_id?: string | number | null;
+  teacher_name?: string;
+  teacher_logo?: string | null;
+  teacher_subject?: string | null;
   group_id?: string | number;
   qr_code?: string;
   medallion_number?: number | null;

@@ -1,228 +1,236 @@
 import React, { useState, useEffect } from 'react';
+import { BarChart3, Bell, CalendarCheck, CalendarX2, Check, ChevronLeft, GraduationCap, Megaphone, MessageCircle, UserRound, Wallet } from 'lucide-react';
 import { Student } from '../types';
-import { StatCard } from '../components/StatCard';
 import { NavTab } from '../components/BottomNav';
 import { ApiClient } from '../services/apiClient';
+import { AccountSheet } from '../components/AccountSheet';
+import { centerPhoneOf, teacherTitle } from '../lib/teachers';
+import { CapArt } from '../components/CapArt';
+import { Card, IconTile, MetricCard, StatusPill } from '../components/ui';
 
 interface DashboardProps {
   student: Student;
+  studentsList: Student[];
+  hasUnread: boolean;
   onNavigateTab: (tab: NavTab) => void;
+  onSwitchStudent: (student: Student) => void;
+  onLogout: () => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ student: initialStudent, onNavigateTab }) => {
+const levelOf = (avg: number) => (avg >= 90 ? 'ممتاز' : avg >= 75 ? 'جيد جداً' : avg >= 50 ? 'مقبول' : 'يحتاج دعم');
+
+/** "الصف الأول - السبت والثلاثاء - 06:00 م" -> grade + schedule. */
+const splitGroup = (name?: string) => {
+  const parts = (name || '').split(' - ').map((p) => p.trim()).filter(Boolean);
+  return { grade: parts[0] || 'المجموعة الدراسية', schedule: parts.slice(1).join('  |  ') };
+};
+
+export const Dashboard: React.FC<DashboardProps> = ({ student: initialStudent, studentsList, hasUnread, onNavigateTab, onSwitchStudent, onLogout }) => {
   const [student, setStudent] = useState<Student>(initialStudent);
   const [notice, setNotice] = useState<{ title: string; body: string; created_at?: string } | null>(null);
+  const [account, setAccount] = useState(false);
 
   useEffect(() => {
     setStudent(initialStudent);
     if (initialStudent?.id) {
       ApiClient.get<any>(`/parent/student/${initialStudent.id}/dashboard`)
         .then((res) => {
-          if (res?.student) {
-            setStudent(res.student);
-          }
-          if (res?.notice) {
-            setNotice(res.notice);
-          }
+          if (res?.student) setStudent(res.student);
+          if (res?.notice) setNotice(res.notice);
         })
-        .catch((err) => {
-          console.warn('[Dashboard] Failed to fetch live dashboard:', err);
-        });
+        .catch((err) => console.warn('[Dashboard] Failed to fetch live dashboard:', err));
     }
   }, [initialStudent]);
 
-  const group = student.group;
-  const sessionsCount = student.attended_count ?? 0;
-  const sessionsPerCycle = group?.sessions_per_cycle || 8;
+  const attended = student.attended_count ?? 0;
+  const absent = student.absent_count ?? 0;
+  const perCycle = student.group?.sessions_per_cycle || 8;
+  const rate = student.attendance_rate ?? 0;
+  const remaining = student.remaining_amount ?? 0;
+  const average = student.exam_average ?? 0;
+  const monthly = student.subscription_type === 'monthly';
+  const { grade, schedule } = splitGroup(student.group?.name);
 
-  const openWhatsappContact = () => {
-    const centerPhone = student.center_phone || student.group?.center_phone || '01000000000';
-    const normalized = centerPhone.replace(/[^0-9]/g, '');
-    const formatted = normalized.startsWith('0') ? `20${normalized.slice(1)}` : normalized;
-    window.open(`https://wa.me/${formatted}`, '_blank');
-  };
+  const whatsapp = centerPhoneOf(student);
+  const teacher = teacherTitle(student);
+  const openWhatsappContact = () => whatsapp && window.open(`https://wa.me/${whatsapp}`, '_blank');
 
   return (
-    <div className="space-y-4 pb-28 font-['Cairo'] selection:bg-emerald-700 selection:text-white">
-      {/* ── Student Main Banner Card (Enterprise Educational Brand Card) ── */}
-      <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#065F46] via-[#033B2B] to-[#012017] p-6 text-white shadow-2xl shadow-emerald-950/30 border border-emerald-500/30">
-        {/* Metallic Shimmer & Ambient Radial Glows */}
-        <div className="absolute -top-16 -right-16 w-56 h-56 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-teal-400/10 rounded-full blur-3xl pointer-events-none" />
+    <div>
+      {/* ── Hero ── */}
+      <header
+        className="relative overflow-hidden text-white"
+        style={{ background: 'linear-gradient(165deg,#1E6554 0%,#16423C 55%,#0D2E2A 100%)', paddingTop: 'max(env(safe-area-inset-top), 1rem)' }}
+      >
+        <div aria-hidden className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-white/[0.06]" />
+        <div aria-hidden className="absolute top-10 -left-24 w-72 h-72 rounded-full bg-white/[0.05]" />
 
-        {/* Header Row of Hero Card */}
-        <div className="flex justify-between items-start relative z-10">
-          <div className="space-y-2 max-w-[65%] text-right pt-1">
-            <h2 className="text-3xl font-black tracking-tight text-white leading-tight drop-shadow-md">
-              {student.name}
-            </h2>
-
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-950/70 border border-emerald-500/30 text-emerald-200 text-xs font-black backdrop-blur-md shadow-xs">
-              <i className="fa-solid fa-graduation-cap text-emerald-400 text-xs" />
-              <span>{group?.name || 'المجموعة الدراسية'}</span>
+        <div className="relative max-w-md md:max-w-3xl lg:max-w-5xl mx-auto px-4 pt-3 pb-16">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setAccount(true)}
+              aria-label="الحساب وتبديل الأبناء"
+              className="w-14 h-14 shrink-0 rounded-full border-2 border-white/80 grid place-items-center text-title text-white bg-white/10"
+            >
+              {(student.name?.trim()[0] || 'ط').toUpperCase()}
+            </button>
+            <div className="min-w-0 flex-1">
+              <p className="text-meta text-white/80">مرحباً بك 👋</p>
+              <h1 className="text-display truncate">{student.name}</h1>
+              <p className="text-meta text-white/80 truncate">{grade}</p>
             </div>
+            <button
+              type="button"
+              onClick={() => onNavigateTab('notifications')}
+              aria-label={hasUnread ? 'الإشعارات (يوجد جديد)' : 'الإشعارات'}
+              className="relative w-12 h-12 shrink-0 rounded-2xl bg-white/15 grid place-items-center"
+            >
+              <Bell size={22} aria-hidden />
+              {hasUnread && <span className="absolute top-2.5 left-3 w-2.5 h-2.5 rounded-full bg-danger ring-2 ring-brand" />}
+            </button>
           </div>
 
-          {/* Graduation Cap Vector SVG Icon on Top Left */}
-          <div className="w-32 h-32 absolute -top-4 left-0 pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.4)] flex items-center justify-center">
-            <img
-              src="/icons/graduation-cap.svg"
-              alt="Graduation Cap & Books"
-              className="w-full h-full object-contain"
-            />
+          <div className="mt-5 flex flex-col items-start gap-2 max-w-[68%]">
+            {teacher && (
+              <span className="inline-flex items-center gap-2 h-9 px-3 rounded-2xl bg-white/12 border border-white/15 text-meta font-semibold max-w-full">
+                <UserRound size={16} className="shrink-0" aria-hidden />
+                <span className="truncate">
+                  {teacher}
+                  {student.teacher_subject ? ` · ${student.teacher_subject}` : ''}
+                </span>
+              </span>
+            )}
+            {schedule && (
+              <span className="inline-flex items-center gap-2 h-9 px-3 rounded-2xl bg-white/12 border border-white/15 text-meta font-semibold max-w-full">
+                <CalendarCheck size={16} className="shrink-0" aria-hidden />
+                <span className="truncate">{schedule}</span>
+              </span>
+            )}
           </div>
+
+          <CapArt palette="green" className="absolute left-2 bottom-8 w-40 md:w-52 h-auto pointer-events-none drop-shadow-lg" />
         </div>
 
-        {/* Enterprise 8-Session Progress Segmented Meter */}
-        <div className="mt-5 bg-[#002720]/90 backdrop-blur-xl rounded-2xl p-4 border border-[#09735d]/60 space-y-3 relative z-10 shadow-inner">
-          <div className="flex justify-between items-center text-xs">
-            <span className="font-black text-white text-xs flex items-center gap-2">
-              <i className="fa-solid fa-square-poll-vertical text-emerald-400 text-sm" />
-              تقدم متابعة الشهر الحالي
-            </span>
-            <span className="font-black text-emerald-300 bg-[#059669]/30 border border-emerald-400/30 px-3 py-0.5 rounded-lg text-xs dir-ltr">
-              {sessionsCount} / {sessionsPerCycle} حصص
-            </span>
-          </div>
+        <svg viewBox="0 0 400 40" preserveAspectRatio="none" className="absolute bottom-0 inset-x-0 w-full h-8 text-canvas" aria-hidden>
+          <path d="M0 22 C70 0 140 6 210 22 S340 40 400 14 V40 H0 Z" fill="currentColor" />
+        </svg>
+      </header>
 
-          {/* Segmented 8-Pill Meter Track */}
-          <div className="grid grid-cols-8 gap-1.5 pt-1">
-            {Array.from({ length: sessionsPerCycle }).map((_, index) => {
-              const isCompleted = index < sessionsCount;
-              return (
-                <div
-                  key={index}
-                  className={`h-3 rounded-md transition-all duration-300 border ${
-                    isCompleted
-                      ? 'bg-gradient-to-t from-emerald-500 to-teal-300 border-emerald-300 shadow-[0_0_8px_rgba(52,211,153,0.8)]'
-                      : 'bg-[#001713] border-emerald-900/60'
-                  }`}
-                  title={`الحصة ${index + 1}`}
-                />
-              );
-            })}
-          </div>
-        </div>
-      </div>
+      <AccountSheet open={account} onClose={() => setAccount(false)} student={student} studentsList={studentsList} onSwitchStudent={onSwitchStudent} onLogout={onLogout} />
 
-      {/* ── Center Announcement Banner ── */}
-      {notice && (
-        <div className="bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-xs">
-          {/* Megaphone Vector SVG Icon on Left */}
-          <div className="w-12 h-12 shrink-0 flex items-center justify-center relative">
-            <img
-              src="/icons/megaphone.svg"
-              alt="Megaphone Notice"
-              className="w-full h-full object-contain drop-shadow-sm"
-            />
-          </div>
+      {/* ── Cards ── */}
+      <div className="relative z-10 max-w-md md:max-w-3xl lg:max-w-5xl mx-auto px-4 -mt-3 pb-32 space-y-3 md:space-y-4">
+        {notice && (
+          <Card className="p-4 flex gap-3 bg-gold-soft border-transparent">
+            <IconTile icon={Megaphone} tone="warning" />
+            <div className="space-y-1 min-w-0">
+              <h3 className="text-body font-semibold">{notice.title}</h3>
+              <p className="text-meta text-ink-2">{notice.body}</p>
+            </div>
+          </Card>
+        )}
 
-          {/* Notice Content */}
-          <div className="flex-1 space-y-0.5 text-right">
-            <h4 className="text-xs font-black text-slate-900 flex items-center justify-start gap-1">
-              <i className="fa-solid fa-star text-amber-500 text-[10px]" />
-              {notice.title}
-            </h4>
-            <p className="text-[11px] font-bold text-slate-600 leading-snug">
-              {notice.body}
-            </p>
-          </div>
-
-          {/* Megaphone Amber Icon Badge */}
-          <div className="w-10 h-10 rounded-2xl bg-amber-100/90 border border-amber-200/80 text-amber-700 flex items-center justify-center text-base shrink-0 shadow-xs">
-            <i className="fa-solid fa-bullhorn" />
-          </div>
-        </div>
-      )}
-
-      {/* ── Quick Stats Grid (2x2) ── */}
-      <div className="grid grid-cols-2 gap-3">
-        <StatCard
-          title="الحصص الحاضرة"
-          value={`${student.attended_count ?? 0} حصص`}
-          subtitle={`نسبة الحضور ${student.attendance_rate ?? 0}%`}
-          icon="fa-check"
-          color="emerald"
-          onClick={() => onNavigateTab('attendance')}
-        />
-        <StatCard
-          title="الحصص الغائبة"
-          value={`${student.absent_count ?? 0} حصة`}
-          subtitle="سجل متابعة الحضور"
-          icon="fa-xmark"
-          color="rose"
-          onClick={() => onNavigateTab('attendance')}
-        />
-        <StatCard
-          title="حالة الاشتراك"
-          value={student.subscription_type === 'monthly' ? 'اشتراك شهري' : 'اشتراك بالحصة'}
-          subtitle={student.remaining_amount ? `متبقي: ${student.remaining_amount} ج.م` : 'الحساب خالص'}
-          icon="fa-wallet"
-          color="amber"
-          onClick={() => onNavigateTab('billing')}
-        />
-        <StatCard
-          title="متوسط الاختبارات"
-          value={`${student.exam_average ?? 0}%`}
-          subtitle="مستوى التقييم"
-          icon="fa-star"
-          color="blue"
-          onClick={() => onNavigateTab('exams')}
-        />
-      </div>
-
-      {/* ── Quick Portal Shortcuts Card ── */}
-      <div className="bg-white border border-slate-100 rounded-3xl p-5 space-y-4 shadow-xs">
-        <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
-          <i className="fa-solid fa-bolt text-[#059669]" />
-          اختصارات البوابة السريعة
-        </h3>
-
-        {/* Horizontal Row of 3 Action Buttons */}
-        <div className="grid grid-cols-3 gap-2.5">
-          <button
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4" aria-label="مؤشرات الطالب">
+          <MetricCard
+            className="md:col-span-2"
+            icon={CalendarCheck}
+            label="الحضور"
+            tone="brand"
+            value={attended}
+            unit={`من ${perCycle}`}
+            meter={
+              <span
+                className="grid gap-1.5"
+                style={{ gridTemplateColumns: `repeat(${perCycle}, minmax(0, 1fr))` }}
+                role="img"
+                aria-label={`حضر ${attended} من ${perCycle} حصص`}
+              >
+                {Array.from({ length: perCycle }).map((_, i) => (
+                  <span key={i} className={`h-1.5 rounded-full ${i < attended ? 'bg-success' : 'bg-success/15'}`} />
+                ))}
+              </span>
+            }
+            pill={
+              <StatusPill tone={rate >= 75 ? 'success' : rate >= 50 ? 'warning' : 'danger'} icon={Check}>
+                نسبة الحضور <span dir="ltr">{rate}%</span>
+              </StatusPill>
+            }
             onClick={() => onNavigateTab('attendance')}
-            className="p-3 rounded-2xl bg-white border border-slate-100 text-center hover:bg-slate-50 transition-all flex flex-col items-center justify-center space-y-2 active:scale-95 shadow-xs cursor-pointer"
-          >
-            <i className="fa-regular fa-calendar-days text-[#059669] text-2xl" />
-            <span className="text-xs font-black text-slate-800">الحضور</span>
-          </button>
-
-          <button
+          />
+          <MetricCard
+            className="md:col-span-2"
+            icon={CalendarX2}
+            label="الغياب"
+            tone="danger"
+            value={absent}
+            unit={absent === 1 ? 'حصة' : 'حصص'}
+            pill={
+              absent > 0 ? (
+                <StatusPill tone="danger" icon={ChevronLeft}>
+                  عرض التفاصيل
+                </StatusPill>
+              ) : (
+                <StatusPill tone="success" icon={Check}>
+                  لا يوجد غياب
+                </StatusPill>
+              )
+            }
+            onClick={() => onNavigateTab('attendance')}
+          />
+          <MetricCard
+            className="col-span-2"
+            icon={Wallet}
+            label="المتبقي للدفع"
+            tone="warning"
+            value={remaining > 0 ? remaining : 0}
+            unit="ج.م"
+            pill={
+              remaining > 0 ? (
+                <StatusPill tone="warning" icon={ChevronLeft}>
+                  {monthly ? 'اشتراك شهري' : 'اشتراك بالحصة'} · عرض الإيصالات
+                </StatusPill>
+              ) : (
+                <StatusPill tone="success" icon={Check}>
+                  الحساب مسدد
+                </StatusPill>
+              )
+            }
             onClick={() => onNavigateTab('billing')}
-            className="p-3 rounded-2xl bg-white border border-slate-100 text-center hover:bg-slate-50 transition-all flex flex-col items-center justify-center space-y-2 active:scale-95 shadow-xs cursor-pointer"
-          >
-            <i className="fa-solid fa-receipt text-[#d97706] text-2xl" />
-            <span className="text-xs font-black text-slate-800">المالية</span>
-          </button>
-
-          <button
+          />
+          <MetricCard
+            className="col-span-2"
+            icon={GraduationCap}
+            label="متوسط الدرجات"
+            tone="info"
+            value={average}
+            unit="%"
+            art={<CapArt palette="blue" className="w-full h-auto drop-shadow-md" />}
+            pill={
+              <StatusPill tone={average >= 75 ? 'success' : average >= 50 ? 'info' : 'warning'} icon={BarChart3}>
+                {levelOf(average)}
+              </StatusPill>
+            }
             onClick={() => onNavigateTab('exams')}
-            className="p-3 rounded-2xl bg-white border border-slate-100 text-center hover:bg-slate-50 transition-all flex flex-col items-center justify-center space-y-2 active:scale-95 shadow-xs cursor-pointer"
-          >
-            <i className="fa-solid fa-graduation-cap text-[#4f46e5] text-2xl" />
-            <span className="text-xs font-black text-slate-800">الدرجات</span>
-          </button>
-        </div>
+          />
+        </section>
 
-        {/* WhatsApp Direct Contact Button */}
+        {whatsapp && (
         <button
+          type="button"
           onClick={openWhatsappContact}
-          className="w-full p-3.5 rounded-2xl bg-[#e8f6f0] border border-[#b2e2d0] text-[#065A4B] font-black flex items-center justify-between hover:bg-[#dff0e8] transition-all shadow-xs active:scale-98 cursor-pointer mt-3"
+          className="w-full flex items-center gap-4 p-4 rounded-card bg-gradient-to-br from-white to-success-soft border border-white/80 shadow-card text-right active:scale-[0.99] transition-transform"
         >
-          <div className="flex flex-col items-start text-right space-y-0.5">
-            <span className="text-xs font-black text-[#065A4B]">
-              تواصل مباشرة مع إدارة السنتر عبر واتساب
-            </span>
-            <span className="text-[11px] font-bold text-[#0a6c57]">
-              نحن هنا لخدمتكم دائماً
-            </span>
-          </div>
-
-          <div className="w-10 h-10 rounded-full bg-[#25D366] text-white flex items-center justify-center text-xl shrink-0 shadow-sm">
-            <i className="fa-brands fa-whatsapp" />
-          </div>
+          <span className="w-14 h-14 shrink-0 grid place-items-center rounded-full bg-[#25D366] text-white">
+            <MessageCircle size={28} strokeWidth={1.75} aria-hidden />
+          </span>
+          <span className="flex-1 min-w-0">
+            <span className="block text-title">{teacher ? `تواصل مع ${teacher}` : 'تواصل مع إدارة السنتر'}</span>
+            <span className="block text-meta text-ink-2">عبر واتساب مباشرة</span>
+          </span>
+          <ChevronLeft size={20} className="text-ink-3" aria-hidden />
         </button>
+        )}
       </div>
     </div>
   );

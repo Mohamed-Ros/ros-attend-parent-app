@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
+import { ArrowLeft, Eye, EyeOff, Lock, ShieldCheck, Smartphone } from 'lucide-react';
 import { AuthService } from '../services/authService';
+import { CapArt } from '../components/CapArt';
+import { HeroFrame } from '../components/ScreenHero';
+import { Button, Card, Field, InlineAlert } from '../components/ui';
 
 interface LoginProps {
   /** Called once the token is stored; App then loads the session (and asks for a new password if required). */
@@ -16,14 +20,8 @@ export const Login: React.FC<LoginProps> = ({ onLoggedIn }) => {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanPhone = phone.replace(/[^0-9]/g, '');
-    if (cleanPhone.length < 10) {
-      setError('يرجى إدخال رقم الهاتف كاملاً');
-      return;
-    }
-    if (!password) {
-      setError('يرجى إدخال كلمة السر');
-      return;
-    }
+    if (cleanPhone.length < 10) return setError('يرجى إدخال رقم الهاتف كاملاً');
+    if (!password) return setError('يرجى إدخال كلمة السر');
 
     setError('');
     setLoading(true);
@@ -38,103 +36,76 @@ export const Login: React.FC<LoginProps> = ({ onLoggedIn }) => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-between items-center p-6 relative overflow-hidden font-['Cairo']">
-      <div className="w-full max-w-sm pt-4 flex flex-col items-center justify-center space-y-3 z-10">
-        <div className="w-full h-40 flex items-center justify-center">
-          <img src="/Login.png" alt="Ros Attends" className="h-full w-auto object-contain" />
+    <div className="min-h-screen bg-canvas text-ink font-sans flex flex-col">
+      <HeroFrame padBottom="pb-20">
+        <div className="relative min-h-[130px] flex flex-col justify-center space-y-1">
+          <p className="text-caption font-semibold tracking-wide text-white/70">ROSS ATTENDS</p>
+          <h1 className="text-display">بوابة ولي الأمر</h1>
+          <p className="text-meta text-white/80 max-w-[52%]">تابع حضور ابنك ودرجاته ومدفوعاته في مكان واحد</p>
+          <CapArt palette="green" className="absolute left-0 top-1/2 -translate-y-1/2 w-36 md:w-48 h-auto drop-shadow-lg" />
         </div>
-        <div className="text-center space-y-1">
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">تسجيل الدخول</h1>
-          <p className="text-xs font-semibold text-emerald-600">بوابة متابعة حضور الطلاب - Ros Attends</p>
-        </div>
-      </div>
+      </HeroFrame>
 
-      <div className="w-full max-w-sm my-auto z-10 space-y-4">
-        <form onSubmit={submit} className="bg-white border border-slate-200 rounded-3xl p-5 space-y-4 shadow-lg shadow-slate-100">
-          <div className="space-y-1.5">
-            <label htmlFor="phone" className="text-xs font-bold text-slate-700 block text-right">
-              رقم هاتف ولي الأمر المسجل بالسنتر
-            </label>
-            <input
+      <main className="relative z-10 flex-1 w-full max-w-md mx-auto px-4 -mt-9 pb-6 flex flex-col">
+        <Card className="p-5 md:p-6 space-y-5">
+          <div className="space-y-1">
+            <h2 className="text-display">تسجيل الدخول</h2>
+            <p className="text-meta text-ink-2">أدخل بياناتك للمتابعة</p>
+          </div>
+
+          <form onSubmit={submit} className="space-y-4">
+            <Field
               id="phone"
+              icon={Smartphone}
+              label="رقم هاتف ولي الأمر"
               type="tel"
               inputMode="numeric"
               autoComplete="username"
               placeholder="01012345678"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-300 rounded-2xl px-4 py-3 text-sm font-bold text-slate-900 placeholder-slate-400 outline-none focus:border-emerald-600 transition-all text-right dir-ltr"
+              ltr
             />
-          </div>
+            <Field
+              id="password"
+              icon={Lock}
+              label="كلمة السر"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              ltr
+              hint="أول مرة؟ كلمة السر هي رقم هاتفك، وسنطلب منك اختيار كلمة جديدة بعد الدخول."
+              trailing={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'إخفاء كلمة السر' : 'إظهار كلمة السر'}
+                  className="w-10 h-10 grid place-items-center text-ink-3"
+                >
+                  {showPassword ? <EyeOff size={20} strokeWidth={1.75} /> : <Eye size={20} strokeWidth={1.75} />}
+                </button>
+              }
+            />
 
-          <div className="space-y-1.5">
-            <label htmlFor="password" className="text-xs font-bold text-slate-700 block text-right">
-              كلمة السر
-            </label>
-            <div className="relative">
-              <input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="current-password"
-                placeholder="••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-300 rounded-2xl pl-11 pr-4 py-3 text-sm font-bold text-slate-900 placeholder-slate-400 outline-none focus:border-emerald-600 transition-all text-right dir-ltr"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? 'إخفاء كلمة السر' : 'إظهار كلمة السر'}
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 text-slate-400 hover:text-slate-700"
-              >
-                <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'} text-sm`} />
-              </button>
-            </div>
-            <p className="text-[11px] font-semibold text-slate-500 text-right leading-relaxed">
-              أول مرة؟ كلمة السر هي رقم هاتفك نفسه، وسنطلب منك اختيار كلمة سر جديدة بعد الدخول.
-            </p>
-          </div>
+            {error && <InlineAlert>{error}</InlineAlert>}
 
-          {error && (
-            <div role="alert" className="bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-2xl px-3 py-2.5 text-right">
-              {error}
-            </div>
-          )}
+            <Button type="submit" loading={loading} icon={ArrowLeft} className="h-[52px]">
+              {loading ? 'جارٍ الدخول' : 'دخول'}
+            </Button>
+          </form>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3.5 rounded-2xl bg-[#16423C] text-white font-black text-sm flex items-center justify-center gap-2 hover:bg-[#123631] active:scale-95 transition-all shadow-md disabled:opacity-50"
-          >
-            {loading ? (
-              <>
-                <i className="fa-solid fa-circle-notch animate-spin text-base" /> جاري الدخول...
-              </>
-            ) : (
-              <>
-                <i className="fa-solid fa-arrow-left text-base" /> دخول
-              </>
-            )}
-          </button>
+          <p className="pt-4 border-t border-line text-caption text-ink-2 text-center">نسيت كلمة السر؟ تواصل مع المعلم لإعادة تعيينها.</p>
+        </Card>
 
-          <p className="text-[11px] font-semibold text-slate-400 text-center">
-            نسيت كلمة السر؟ تواصل مع المعلم لإعادة تعيينها.
-          </p>
-        </form>
-      </div>
-
-      <div className="text-center text-[11px] font-semibold text-slate-400 z-10 pb-2 space-y-1">
-        <p>Ros Attends Parent Portal © {new Date().getFullYear()} • نظام متابعة الطلاب الذكي</p>
-        <a
-          href="/privacy.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-emerald-700 hover:underline font-bold text-[11px] inline-flex items-center gap-1"
-        >
-          <i className="fa-solid fa-shield-halved text-[10px]" />
-          سياسة الخصوصية
-        </a>
-      </div>
+        <footer className="mt-auto pt-8 text-center text-caption text-ink-3 space-y-1">
+          <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-ink-2">
+            <ShieldCheck size={12} aria-hidden /> سياسة الخصوصية
+          </a>
+          <p>Ross Attends © {new Date().getFullYear()}</p>
+        </footer>
+      </main>
     </div>
   );
 };

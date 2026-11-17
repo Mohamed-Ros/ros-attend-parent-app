@@ -3,17 +3,41 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    background: theme('colors.canvas');
+  }
   body {
-    @apply bg-slate-50 text-slate-900 font-['Cairo'] antialiased select-none;
+    @apply bg-canvas text-ink font-sans antialiased select-none text-body;
     -webkit-tap-highlight-color: transparent;
+  }
+  :focus-visible {
+    outline: 2px solid theme('colors.brand.DEFAULT');
+    outline-offset: 2px;
   }
 }
 
-/* Custom Glassmorphism Utility - Light */
-.glass-panel-light {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 h-12 px-5 rounded-control text-body font-semibold
+      transition-colors active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-primary { @apply bg-brand text-white hover:bg-brand-pressed; }
+  .btn-secondary { @apply bg-surface text-ink border border-line-strong hover:bg-sunken; }
+  .btn-danger { @apply bg-danger-soft text-danger hover:brightness-95; }
+  .btn-ghost { @apply text-ink-2 hover:bg-sunken; }
+
+  /* SweetAlert2 themed to the system */
+  .ds-swal { @apply !rounded-card !p-5 !font-sans !bg-surface !text-ink; }
+  .ds-swal .swal2-title { @apply !text-title !text-ink !p-0 !m-0 !mb-2; }
+  .ds-swal .swal2-html-container { @apply !text-meta !text-ink-2 !m-0 !p-0; }
+  .ds-swal .swal2-actions { @apply !gap-2 !mt-5 !w-full; }
+  .ds-swal .swal2-actions .btn { @apply flex-1; }
+  .ds-swal .swal2-icon { @apply !scale-75 !mb-0; }
 }
 
+@layer utilities {
+  .dir-ltr { direction: ltr; unicode-bidi: isolate; }
+  .pb-safe { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
+  .tabular { font-variant-numeric: tabular-nums; }
+}
