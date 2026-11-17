@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Monochrome status-bar icon (Android draws it as a white silhouette): a mortarboard. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,3 L1,9 L12,15 L21,10.1 L21,17 L23,17 L23,9 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M5,13.2 L5,17.2 C5,17.2 8,20 12,20 C16,20 19,17.2 19,17.2 L19,13.2 L12,17 Z" />
+</vector>
